@@ -1,0 +1,173 @@
+<!-- step 2 -->
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coding Test Ananda</title>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: '#ffd500' },
+            fontFamily: { poppins: ['Poppins', 'sans-serif'] }
+          }
+        }
+      }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-primary font-poppins min-h-screen flex flex-col items-center py-10 px-4">
+    <h1 class="text-3xl font-semibold mb-8 text-gray-900">Coding Test</h1>
+
+    <form id="convForm" class="w-full max-w-3xl bg-white p-8 rounded-lg shadow-lg space-y-6">
+      <div>
+        <label for="kalimat" class="block text-gray-800 text-xl font-medium mb-2">
+          Masukkan Text:
+        </label>
+        <input
+          type="text"
+          id="kalimat"
+          placeholder="Contoh: Avenger Endgame"
+          class="font-medium w-full border border-gray-300 rounded-lg px-4 py-3"
+        />
+        <p id="errorMessage" class="mt-2 text-sm text-red-600 hidden">Tidak Boleh Memasukkan Angka!</p>
+      </div>
+      <button
+        type="submit"
+        class="w-full bg-primary text-gray-900 font-semibold py-3 rounded-lg hover:bg-yellow-300 transition"
+      >
+        Proses
+      </button>
+    </form>
+
+    <div id="output" class="w-full max-w-3xl  mt-8 space-y-4"></div>
+
+    <script>
+      const hurufKeAngka = {
+        A:0,
+        B:1,C:1,D:1,
+        E:2,
+        F:3,G:3,H:3,
+        I:4,
+        J:5,K:5,L:5,M:5,N:5,
+        O:6,
+        P:7,Q:7,R:7,S:7,T:7,
+        U:8,
+        V:9,W:9,X:9,Y:9,Z:9,
+        a:9,
+        b:8,c:8,d:8,
+        e:7,
+        f:6,g:6,h:6,
+        i:5,
+        j:4,k:4,l:4,m:4,n:4,
+        o:3,
+        p:2,q:2,r:2,s:2,t:2,
+        u:1,
+        v:0,w:0,x:0,y:0,z:0,' ':0
+      };
+
+      const angkaKeHuruf = {
+        0:'A', 1:'B', 2:'E', 3:'F', 4:'I', 5:'J', 6:'O', 7:'P', 8:'U', 9:'V'
+      };
+
+      function ubahHurufKeAngka(teks) {
+        return teks.split('').map(karakter => hurufKeAngka[karakter] ?? '').join(' ');
+      }
+
+      function hitungJumlahAngka(arrayAngka) {
+        let total = +arrayAngka[0];
+
+        for (let i = 1; i < arrayAngka.length; i++) {
+          total = (i % 2 === 1) ? total + +arrayAngka[i] : total - +arrayAngka[i];
+        }
+        return total;
+      }
+
+      function buatDeretHuruf(target) {
+        const deret = [];
+        let jumlah = 0, indeks = 0;
+        while (jumlah < target) {
+          if (jumlah + indeks <= target) {
+            deret.push(indeks);
+            jumlah += indeks;
+          }
+          indeks = (indeks + 1) % 10;
+        }
+        return deret.map(i => angkaKeHuruf[i]).join(' ');
+      }
+
+      function tambahAkhiranDanKonversi(teks) {
+        const deretAngka = teks.split(' ').map(huruf => {
+          for (const [angka, hurufMap] of Object.entries(angkaKeHuruf)) {
+            if (hurufMap === huruf) return +angka;
+          }
+
+          return;
+        });
+
+        const hasil = deretAngka.map((angka, index) =>
+          index >= deretAngka.length - 2 ? angka + 1 : angka
+        );
+
+        return hasil.map(n => angkaKeHuruf[n]).join(' ');
+      }
+
+      function ubahKeNilaiGanjil(teks) {
+        const hurufKeIndeks = Object.fromEntries(
+          Object.entries(angkaKeHuruf).map(([angka, huruf]) => [huruf, +angka])
+        );
+        return teks.split(' ').map(huruf => {
+          const indeks = hurufKeIndeks[huruf] ?? 0;
+          return (Math.ceil((indeks + 1) / 2) * 2 - 1);
+        }).join(' ');
+      }
+
+      document.getElementById('convForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const inputEl = document.getElementById('kalimat');
+        const errorEl = document.getElementById('errorMessage');
+        const outputEl = document.getElementById('output');
+        const teksInput = inputEl.value.trim();
+
+        if (/\d/.test(teksInput)) {
+          errorEl.classList.remove('hidden');
+          outputEl.innerHTML = '';
+          return;
+        } else {
+          errorEl.classList.add('hidden');
+        }
+
+        outputEl.innerHTML = '';
+
+        const langkah1 = ubahHurufKeAngka(teksInput);
+        const angkaArray = langkah1.split(' ');
+        const langkah2 = hitungJumlahAngka(angkaArray);
+        const langkah3 = buatDeretHuruf(Math.abs(langkah2));
+        const langkah4 = tambahAkhiranDanKonversi(langkah3);
+        const langkah5 = ubahKeNilaiGanjil(langkah4);
+
+        const hasilLangkah = [
+          { label: 'Langkah 1', nilai: langkah1 },
+          { label: 'Langkah 2', nilai: langkah2 },
+          { label: 'Langkah 3', nilai: langkah3 },
+          { label: 'Langkah 4', nilai: langkah4 },
+          { label: 'Langkah 5', nilai: langkah5 }
+        ];
+
+        hasilLangkah.forEach(({ label, nilai }) => {
+          const div = document.createElement('div');
+          div.className = 'p-4 bg-white rounded-lg border border-gray-200';
+          div.innerHTML = `<span class="font-medium text-gray-800">${label}:</span> <span class="text-gray-900">${nilai}</span>`;
+          outputEl.appendChild(div);
+        });
+
+
+      });
+    </script>
+
+  </body>
+
+</html>
