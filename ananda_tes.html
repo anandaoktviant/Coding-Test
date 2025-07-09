@@ -115,6 +115,7 @@
       }
 
       function ubahKeNilaiGanjil(teks) {
+        if (!teks || teks.trim() === '') return '';
         const hurufKeIndeks = Object.fromEntries(
           Object.entries(angkaKeHuruf).map(([angka, huruf]) => [huruf, +angka])
         );
